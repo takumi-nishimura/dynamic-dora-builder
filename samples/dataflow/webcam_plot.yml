@@ -1,0 +1,7 @@
+nodes:
+  - id: webcam
+    path: webcam.yml
+    kind: dynamic
+  - id: plot
+    path: plot.yml
+    kind: dynamic

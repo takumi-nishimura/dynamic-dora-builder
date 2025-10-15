@@ -19,7 +19,13 @@ class Node(BaseModel):
     env: Optional[Dict[str, Any]] = Field(
         default=None, description="Environment variables for the node"
     )
+    name: Optional[str] = Field(
+        default=None, description="Human-readable name for the node"
+    )
     build: Optional[str] = Field(default=None, description="Build command for the node")
+    operator: Optional["Operator"] = Field(
+        default=None, description="Operator associated with the node"
+    )
     inputs: Optional[Dict[str, str]] = Field(
         default=None, description="Input dependencies for the node"
     )
@@ -33,16 +39,14 @@ class Node(BaseModel):
 
 
 class Operator(BaseModel):
-    id: str = Field(..., description="Unique identifier for the operator")
-    name: Optional[str] = Field(default=None, description="Name of the operator")
-    description: Optional[str] = Field(
-        default=None, description="Description of the operator"
-    )
     build: Optional[str] = Field(
         default=None, description="Build command for the operator"
     )
+    description: Optional[str] = Field(
+        default=None, description="Description of the operator"
+    )
     python: Optional[str] = Field(
-        default=None, description="Python version for the operator"
+        default=None, description="Python script path for the operator"
     )
     inputs: Optional[Dict[str, str]] = Field(
         default=None, description="Input dependencies for the operator"

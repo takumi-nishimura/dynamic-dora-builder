@@ -1,0 +1,6 @@
+nodes:
+  - id: plot
+    operator:
+      python: ../modules/plot.py
+      inputs:
+        image: webcam/image
