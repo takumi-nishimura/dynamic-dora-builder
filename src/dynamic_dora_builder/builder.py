@@ -47,7 +47,7 @@ class DynamicDataflowBuilder:
                 export_path.parent.mkdir(parents=True, exist_ok=True)
             export_path.write_text(
                 yaml.safe_dump(
-                    dataflow.model_dump(exclude_unset=True),
+                    dataflow.model_dump(exclude_none=True),
                     default_flow_style=False,
                     sort_keys=False,
                     allow_unicode=True,

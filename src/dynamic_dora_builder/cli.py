@@ -13,7 +13,7 @@ from .models import Dataflow
 
 def _dump_dataflow_to_stdout(dataflow: Dataflow) -> None:
     rendered = yaml.safe_dump(
-        dataflow.model_dump(exclude_unset=True),
+        dataflow.model_dump(exclude_none=True),
         default_flow_style=False,
         sort_keys=False,
         allow_unicode=True,
@@ -74,7 +74,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.export and args.export.is_dir():
             parser.error("--export must point to a file, not a directory")
 
-        export_path = args.export or args.deployment.with_name("dataflow.yml")
+        export_path = args.export or Path("dataflow.yml")
         implicit_export = args.export is None
         return build_command(
             deployment=args.deployment,

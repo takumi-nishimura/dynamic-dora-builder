@@ -75,6 +75,7 @@ class DynamicNode(BaseModel):
 class DynamicComponent(BaseModel):
     id: str = Field(..., description="Unique identifier for the dynamic component")
     path: str = Field(..., description="Path to the component's definition")
-    env: Optional[Dict[str, str]] = Field(
-        default=None, description="Environment variables for the component"
+    env: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Environment variables for the component. Supports complex values for template rendering.",
     )
