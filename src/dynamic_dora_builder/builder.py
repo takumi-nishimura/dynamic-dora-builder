@@ -5,6 +5,7 @@ import jinja2
 import yaml
 
 from .models import Dataflow, DeploymentConfig, DynamicNode, Node, Operator
+from .yaml_utils import dump_yaml
 
 
 class DynamicDataflowBuilder:
@@ -46,13 +47,7 @@ class DynamicDataflowBuilder:
             if not export_path.parent.exists():
                 export_path.parent.mkdir(parents=True, exist_ok=True)
             export_path.write_text(
-                yaml.safe_dump(
-                    dataflow.model_dump(exclude_none=True),
-                    default_flow_style=False,
-                    sort_keys=False,
-                    allow_unicode=True,
-                    indent=4,
-                )
+                dump_yaml(dataflow.model_dump(exclude_none=True))
             )
 
         return dataflow

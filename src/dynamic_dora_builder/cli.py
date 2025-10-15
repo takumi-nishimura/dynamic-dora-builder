@@ -5,20 +5,13 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-import yaml
-
 from .builder import DynamicDataflowBuilder
 from .models import Dataflow
+from .yaml_utils import dump_yaml
 
 
 def _dump_dataflow_to_stdout(dataflow: Dataflow) -> None:
-    rendered = yaml.safe_dump(
-        dataflow.model_dump(exclude_none=True),
-        default_flow_style=False,
-        sort_keys=False,
-        allow_unicode=True,
-        indent=4,
-    )
+    rendered = dump_yaml(dataflow.model_dump(exclude_none=True))
     sys.stdout.write(rendered)
 
 
