@@ -1,0 +1,21 @@
+[project]
+name = "dynamic-dora-builder"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "takumi-nishimura", email = "clp13218@nitech.jp" }
+]
+requires-python = ">=3.12.4"
+dependencies = [
+    "jinja2>=3.1.6",
+    "pydantic>=2.12.2",
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+dynamic-dora-builder = "dynamic_dora_builder:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
