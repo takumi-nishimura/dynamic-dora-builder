@@ -1,0 +1,7 @@
+nodes:
+    - id: listener
+      path: src/conversation/listener-1/listener_1/main.py
+      inputs:
+        {% for talker_id in talkers %}
+        speech-{{ talker_id }}: {{ talker_id }}-talker/speech
+        {% endfor %}

@@ -19,3 +19,8 @@ dynamic-dora-builder = "dynamic_dora_builder:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "dora-rs-cli>=0.3.13",
+]

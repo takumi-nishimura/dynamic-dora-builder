@@ -1,0 +1,15 @@
+components:
+  - id: talker_1
+    path: samples/dataflow/talker.j2
+    env:
+      talker_id: talker_1
+  - id: talker_2
+    path: samples/dataflow/talker.j2
+    env:
+      talker_id: talker_2
+  - id: listener
+    path: samples/dataflow/listener.j2
+    env:
+      talkers:
+        - talker_1
+        - talker_2
