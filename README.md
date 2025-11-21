@@ -31,13 +31,17 @@ uv run dynamic-dora-builder build path/to/deployment.yml --export out/dataflow.y
 3種類を混在可能:
 
 - Node: 明示的なノード定義
+  (`args`で実行バイナリへの引数を配列指定可能)
   ```yaml
   nodes:
     - id: webcam
       path: apps/webcam_node
+      args:
+        - --device
+        - /dev/video0
       env:
         FPS: 30
-      operator:
+    operator:
         python: ops/webcam.py
         inputs:
           tick: dora/timer/millis/100
@@ -61,13 +65,13 @@ uv run dynamic-dora-builder build path/to/deployment.yml --export out/dataflow.y
   `path`で指定したデータフローYAMLを読み込み，同じ`id`のノードを抽出して接続．
 
 ### componentsセクション
-Jinja2テンプレートを用いた動的生成．`env`をテンプレートに渡す:
+Jinja2テンプレートを用いた動的生成．`vars`をテンプレートに渡す (展開時はトップレベルキーとしても，`vars.*`としても参照可):
 
 ```yaml
 components:
   - id: camera_chain
     path: templates/camera_chain.yml.j2
-    env:
+    vars:
       source_topic: webcam/image
       every_ms: 100
 ```
@@ -84,12 +88,13 @@ nodes:
       outputs:
         - gated_image
 ```
-テンプレートは`deployment`のディレクトリ基準で解決 (なければカレントディレクトリ)．`env`はネストした値もそのまま埋め込める．
+テンプレートは`deployment`のディレクトリ基準で解決 (なければカレントディレクトリ)．`vars`はネストした値もそのまま埋め込める．
 
 ### デプロイメントYAMLをJinja2で書く
 `deployment.yml`自体もJinja2として描画される．利用できるコンテキスト:
 - `env`: OS環境変数 (`{{ env.PATH }}` や `{{ env["GPU_ID"] }}`)
 - `cwd`: コマンド実行時のカレントディレクトリ文字列
+- `vars`: YAML上のトップレベル`vars`セクション (存在する場合)．`vars`下のキーはトップレベルでも参照可 (`{{ foo }}` と `{{ vars.foo }}` の両方が使える)
 
 例 (ループと環境変数):
 ```yaml
@@ -108,6 +113,7 @@ nodes:
 {% endfor %}
 ```
 未定義変数はStrictUndefinedでエラーになるため，環境変数を使う場合は存在を確認するか`get`でデフォルトを入れる．拡張子は`.yml`でも`.yml.j2`でも可．
+`deployment`や`component`テンプレート内で未定義の変数を参照すると，ビルド時に`Undefined Jinja variables ...`エラーで落ちる（変数チェック機能）．
 
 ### パス解決と出力
 - 相対パスは「デプロイメントYAMLの場所」優先で解決し，存在しない場合はカレントディレクトリを探索

@@ -36,6 +36,9 @@ class Node(BaseModel):
     outputs: Optional[List[str]] = Field(
         default=None, description="Output artifacts for the node"
     )
+    args: Optional[List[str]] = Field(
+        default=None, description="Command-line arguments passed to the node executable"
+    )
 
     @property
     def config(self) -> Dict[str, str]:
@@ -60,6 +63,9 @@ class Operator(BaseModel):
     outputs: Optional[List[str]] = Field(
         default=None, description="Output artifacts for the operator"
     )
+    args: Optional[List[str]] = Field(
+        default=None, description="Command-line arguments passed to the operator executable"
+    )
 
 
 class DeploymentConfig(BaseModel):
@@ -67,6 +73,9 @@ class DeploymentConfig(BaseModel):
         arbitrary_types_allowed=True, union_mode="left_to_right"
     )
 
+    vars: Optional[Dict[str, Any]] = Field(
+        default=None, description="Jinja template variables available as plain keys or under vars"
+    )
     nodes: List[Union[Node, Operator, "DynamicNode"]] = Field(
         default=[],
         description="List of nodes, operators, and dynamic nodes in the deployment",
@@ -87,7 +96,7 @@ class DynamicNode(BaseModel):
 class DynamicComponent(BaseModel):
     id: str = Field(..., description="Unique identifier for the dynamic component")
     path: str = Field(..., description="Path to the component's definition")
-    env: Optional[Dict[str, Any]] = Field(
+    vars: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="Environment variables for the component. Supports complex values for template rendering.",
+        description="Template variables used for rendering this component.",
     )

@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 import jinja2
+from jinja2 import defaults, meta
 import yaml
 
 from .models import Dataflow, DeploymentConfig, DynamicNode, Node, Operator
@@ -37,6 +38,7 @@ class DynamicDataflowBuilder:
             yaml.safe_load(rendered_deployment) or {}
         )
         deployment_dir = deployment_path.parent
+        deployment_vars = deployment.vars or {}
 
         dataflow = Dataflow()
         for node in deployment.nodes:
@@ -71,10 +73,21 @@ class DynamicDataflowBuilder:
                 component.path, deployment_dir, command_root
             )
             template_env = jinja2.Environment(
-                loader=jinja2.FileSystemLoader(str(component_path.parent))
+                loader=jinja2.FileSystemLoader(str(component_path.parent)),
+                undefined=jinja2.StrictUndefined,
             )
             template = template_env.get_template(component_path.name)
-            rendered_dataflow = template.render(component.env or {})
+            merged_vars = {**deployment_vars, **(component.vars or {})}
+            component_context = {
+                **merged_vars,
+                "vars": merged_vars,
+                "env": os.environ,
+                "cwd": str(command_root),
+            }
+            cls._validate_template_variables(
+                template_env, component_path.name, component_context.keys()
+            )
+            rendered_dataflow = template.render(component_context)
             replaced_dataflow = yaml.safe_load(rendered_dataflow) or {}
 
             loaded_dataflow = Dataflow.model_validate(replaced_dataflow)
@@ -92,9 +105,52 @@ class DynamicDataflowBuilder:
             loader=jinja2.FileSystemLoader(str(deployment_path.parent)),
             undefined=jinja2.StrictUndefined,
         )
+        template_vars = cls._extract_vars_from_template(deployment_path)
         template = template_env.get_template(deployment_path.name)
-        context = {"env": os.environ, "cwd": str(command_root)}
+        context = {
+            **template_vars,
+            "vars": template_vars,
+            "env": os.environ,
+            "cwd": str(command_root),
+        }
+        cls._validate_template_variables(
+            template_env, deployment_path.name, context.keys()
+        )
         return template.render(context)
+
+    @staticmethod
+    def _extract_vars_from_template(deployment_path: Path) -> dict:
+        try:
+            raw_content = deployment_path.read_text()
+        except OSError:
+            return {}
+        try:
+            parsed = yaml.safe_load(raw_content) or {}
+        except yaml.YAMLError:
+            return {}
+        if isinstance(parsed, dict):
+            vars_section = parsed.get("vars")
+            if isinstance(vars_section, dict):
+                return vars_section
+        return {}
+
+    @staticmethod
+    def _validate_template_variables(
+        template_env: jinja2.Environment, template_name: str, allowed_names
+    ) -> None:
+        try:
+            source, _, _ = template_env.loader.get_source(template_env, template_name)
+        except Exception:
+            return
+        ast = template_env.parse(source)
+        undeclared = meta.find_undeclared_variables(ast)
+        allowed_defaults = set(defaults.DEFAULT_NAMESPACE.keys())
+        allowed = set(allowed_names) | allowed_defaults
+        missing = sorted(name for name in undeclared if name not in allowed)
+        if missing:
+            raise ValueError(
+                f"Undefined Jinja variables in {template_name}: {', '.join(missing)}"
+            )
 
     @staticmethod
     def _resolve_path_for_io(raw_path: str, base_dir: Path, command_root: Path) -> Path:
