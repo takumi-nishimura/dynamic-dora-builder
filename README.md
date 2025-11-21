@@ -34,11 +34,11 @@ uv run dynamic-dora-builder build path/to/deployment.yml --export out/dataflow.y
   (`args`で実行バイナリへの引数を配列指定可能)
   ```yaml
   nodes:
-    - id: webcam
-      path: apps/webcam_node
-      args:
-        - --device
-        - /dev/video0
+  - id: webcam
+    path: apps/webcam_node
+    args:
+      - --device
+      - /dev/video0
       env:
         FPS: 30
     operator:
@@ -88,7 +88,7 @@ nodes:
       outputs:
         - gated_image
 ```
-テンプレートは`deployment`のディレクトリ基準で解決 (なければカレントディレクトリ)．`vars`はネストした値もそのまま埋め込める．
+テンプレートは`deployment`のディレクトリ基準で解決 (なければカレントディレクトリ)．`vars`はネストした値もそのまま埋め込める．`args`は配列でも文字列でも指定可能．
 
 ### デプロイメントYAMLをJinja2で書く
 `deployment.yml`自体もJinja2として描画される．利用できるコンテキスト:

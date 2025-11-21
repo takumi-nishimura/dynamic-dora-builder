@@ -36,8 +36,9 @@ class Node(BaseModel):
     outputs: Optional[List[str]] = Field(
         default=None, description="Output artifacts for the node"
     )
-    args: Optional[List[str]] = Field(
-        default=None, description="Command-line arguments passed to the node executable"
+    args: Optional[Union[List[str], str]] = Field(
+        default=None,
+        description="Command-line arguments passed to the node executable (list or string)",
     )
 
     @property
@@ -63,8 +64,9 @@ class Operator(BaseModel):
     outputs: Optional[List[str]] = Field(
         default=None, description="Output artifacts for the operator"
     )
-    args: Optional[List[str]] = Field(
-        default=None, description="Command-line arguments passed to the operator executable"
+    args: Optional[Union[List[str], str]] = Field(
+        default=None,
+        description="Command-line arguments passed to the operator executable (list or string)",
     )
 
 
