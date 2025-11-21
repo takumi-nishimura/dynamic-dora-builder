@@ -30,8 +30,11 @@ class DynamicDataflowBuilder:
 
     @classmethod
     def _build_dataflow(cls, deployment_path: Path, command_root: Path) -> Dataflow:
+        rendered_deployment = cls._render_deployment_template(
+            deployment_path, command_root
+        )
         deployment = DeploymentConfig.model_validate(
-            yaml.safe_load(deployment_path.read_text())
+            yaml.safe_load(rendered_deployment) or {}
         )
         deployment_dir = deployment_path.parent
 
@@ -82,6 +85,16 @@ class DynamicDataflowBuilder:
                 dataflow.nodes.append(node)
 
         return dataflow
+
+    @staticmethod
+    def _render_deployment_template(deployment_path: Path, command_root: Path) -> str:
+        template_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(str(deployment_path.parent)),
+            undefined=jinja2.StrictUndefined,
+        )
+        template = template_env.get_template(deployment_path.name)
+        context = {"env": os.environ, "cwd": str(command_root)}
+        return template.render(context)
 
     @staticmethod
     def _resolve_path_for_io(raw_path: str, base_dir: Path, command_root: Path) -> Path:

@@ -4,7 +4,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class Dataflow(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, union_mode="left_to_right"
+    )
 
     nodes: List[Union["Node", "Operator"]] = Field(
         default=[], description="List of nodes and operators in the dataflow"
@@ -12,6 +14,8 @@ class Dataflow(BaseModel):
 
 
 class Node(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str = Field(..., description="Unique identifier for the node")
     path: Optional[str] = Field(
         default=None, description="Path to the executable or script"
@@ -26,7 +30,7 @@ class Node(BaseModel):
     operator: Optional["Operator"] = Field(
         default=None, description="Operator associated with the node"
     )
-    inputs: Optional[Dict[str, str]] = Field(
+    inputs: Optional[Dict[str, Any]] = Field(
         default=None, description="Input dependencies for the node"
     )
     outputs: Optional[List[str]] = Field(
@@ -39,6 +43,8 @@ class Node(BaseModel):
 
 
 class Operator(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     build: Optional[str] = Field(
         default=None, description="Build command for the operator"
     )
@@ -48,7 +54,7 @@ class Operator(BaseModel):
     python: Optional[str] = Field(
         default=None, description="Python script path for the operator"
     )
-    inputs: Optional[Dict[str, str]] = Field(
+    inputs: Optional[Dict[str, Any]] = Field(
         default=None, description="Input dependencies for the operator"
     )
     outputs: Optional[List[str]] = Field(
@@ -57,7 +63,9 @@ class Operator(BaseModel):
 
 
 class DeploymentConfig(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, union_mode="left_to_right"
+    )
 
     nodes: List[Union[Node, Operator, "DynamicNode"]] = Field(
         default=[],
