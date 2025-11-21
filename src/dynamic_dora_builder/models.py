@@ -61,6 +61,9 @@ class Operator(BaseModel):
     inputs: Optional[Dict[str, Any]] = Field(
         default=None, description="Input dependencies for the operator"
     )
+    env: Optional[Dict[str, Any]] = Field(
+        default=None, description="Environment variables for the operator"
+    )
     outputs: Optional[List[str]] = Field(
         default=None, description="Output artifacts for the operator"
     )

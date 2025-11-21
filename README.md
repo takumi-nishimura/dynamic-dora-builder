@@ -42,11 +42,13 @@ uv run dynamic-dora-builder build path/to/deployment.yml --export out/dataflow.y
       env:
         FPS: 30
     operator:
-        python: ops/webcam.py
-        inputs:
-          tick: dora/timer/millis/100
-        outputs:
-          - image
+      python: ops/webcam.py
+      inputs:
+        tick: dora/timer/millis/100
+      env:
+        DEVICE: /dev/video0
+      outputs:
+        - image
   ```
 - Operator: オペレーターだけを直接並べたい場合に利用 (暗黙のidなしで配置)
   ```yaml
