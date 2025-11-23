@@ -99,8 +99,10 @@ class DynamicDataflowBuilder:
 
         return dataflow
 
-    @staticmethod
-    def _render_deployment_template(deployment_path: Path, command_root: Path) -> str:
+    @classmethod
+    def _render_deployment_template(
+        cls, deployment_path: Path, command_root: Path
+    ) -> str:
         template_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(str(deployment_path.parent)),
             undefined=jinja2.StrictUndefined,
